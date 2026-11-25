@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de Treinos</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2535;
+    --border: #2a3045;
+    --accent: #4f8ef7;
+    --accent-dim: #1e3060;
+    --text: #e8ecf5;
+    --text-muted: #7a86a3;
+    --success: #2ecc71;
+    --danger: #e74c4c;
+    --muscle-colors: ;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* LAYOUT */
+  .app { display: grid; grid-template-columns: 260px 1fr 300px; height: 100vh; overflow: hidden; }
+  .panel { overflow-y: auto; border-right: 1px solid var(--border); }
+  .panel:last-child { border-right: none; border-left: 1px solid var(--border); }
+
+  /* HEADER */
+  .panel-header { padding: 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 10; }
+  .panel-header h2 { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+
+  /* EXERCÍCIOS */
+  .muscle-group { margin-bottom: 4px; }
+  .muscle-label { padding: 8px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); background: var(--bg); position: sticky; top: 49px; z-index: 5; }
+  .ex-btn { display: flex; align-items: center; width: 100%; padding: 9px 16px; background: none; border: none; color: var(--text); font-size: 13px; cursor: pointer; text-align: left; transition: background .15s; gap: 8px; }
+  .ex-btn:hover { background: var(--surface2); }
+  .ex-btn .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* TREINO ATUAL */
+  .workout-panel { background: var(--surface); display: flex; flex-direction: column; }
+  .workout-body { flex: 1; overflow-y: auto; padding: 12px; }
+
+  .ex-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+  .ex-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .ex-card-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .ex-card-muscle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .ex-card-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 0 4px; line-height: 1; }
+  .ex-card-remove:hover { color: var(--danger); }
+
+  .ex-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .field-group label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .05em; }
+  .field-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 13px; padding: 5px 8px; text-align: center; }
+  .field-group input:focus { outline: none; border-color: var(--accent); }
+
+  .obs-field { margin-top: 8px; }
+  .obs-field label { display: block; font-size: 10px; color: var(--text-muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .05em; }
+  .obs-field input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 12px; padding: 5px 8px; }
+  .obs-field input:focus { outline: none; border-color: var(--accent); }
+
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+  .empty-state svg { opacity: .3; margin-bottom: 12px; }
+  .empty-state p { font-size: 13px; line-height: 1.5; }
+
+  /* ALUNO PANEL */
+  .student-panel { background: var(--surface); display: flex; flex-direction: column; }
+  .student-body { flex: 1; overflow-y: auto; padding: 12px; }
+
+  .input-group { margin-bottom: 12px; }
+  .input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .input-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; padding: 9px 12px; }
+  .input-group input:focus { outline: none; border-color: var(--accent); }
+  .input-group input::placeholder { color: var(--text-muted); }
+
+  .btn { width: 100%; padding: 10px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #3a7be8; }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); margin-top: 6px; }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-print { background: #1a3a1a; color: var(--success); border: 1px solid #2a5a2a; margin-top: 6px; }
+  .btn-print:hover { background: #2a5a2a; }
+  .btn-print:disabled { opacity: .4; cursor: not-allowed; }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+
+  /* TREINOS SALVOS */
+  .saved-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; transition: border-color .15s; display: flex; justify-content: space-between; align-items: center; }
+  .saved-item:hover { border-color: var(--accent); }
+  .saved-item-info { flex: 1; min-width: 0; }
+  .saved-item-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .saved-item-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .saved-item-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; padding: 0 4px; flex-shrink: 0; }
+  .saved-item-del:hover { color: var(--danger); }
+
+  .search-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; padding: 7px 10px; margin-bottom: 10px; }
+  .search-input:focus { outline: none; border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-muted); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a3a1a; color: var(--success); border: 1px solid #2a5a2a; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; z-index: 1000; display: none; }
+
+  /* PRINT */
+  @media print {
+    body { background: #fff; color: #000; font-family: monospace; }
+    .app { display: none; }
+    #print-area { display: block !important; }
+  }
+  #print-area { display: none; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- COLUNA 1: EXERCÍCIOS -->
+  <div class="panel" style="background: var(--surface);">
+    <div class="panel-header">
+      <h2>Exercícios</h2>
+      <input class="search-input" id="searchEx" placeholder="Buscar exercício..." style="margin-top: 10px; margin-bottom: 0;" oninput="filterExercises()">
+    </div>
+    <div id="exerciseList"></div>
+  </div>
+
+  <!-- COLUNA 2: TREINO ATUAL -->
+  <div class="workout-panel panel" style="border-right: none;">
+    <div class="panel-header" style="background: var(--surface);">
+      <h2>Treino atual</h2>
+    </div>
+    <div class="workout-body" id="workoutBody">
+      <div class="empty-state" id="emptyState">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 6.5h11M6.5 12h11M6.5 17.5h7"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
+        <p>Clique nos exercícios ao lado para montar o treino</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUNA 3: ALUNO + SALVAR -->
+  <div class="student-panel panel">
+    <div class="panel-header" style="background: var(--surface);">
+      <h2>Aluno &amp; Impressão</h2>
+    </div>
+    <div class="student-body">
+      <div class="input-group">
+        <label>Nome do aluno</label>
+        <input id="studentName" type="text" placeholder="Ex: João Silva" oninput="updateButtons()">
+      </div>
+      <div class="input-group">
+        <label>Divisão do treino</label>
+        <input id="trainDiv" type="text" placeholder="Ex: Treino A – Peito/Tríceps">
+      </div>
+
+      <button class="btn btn-primary" id="btnSave" onclick="saveWorkout()" disabled>Salvar treino</button>
+      <button class="btn btn-print" id="btnPrint" onclick="printWorkout()" disabled>Imprimir ticket</button>
+      <button class="btn btn-secondary" onclick="clearWorkout()">Limpar treino</button>
+
+      <div class="divider"></div>
+
+      <div class="section-title">Treinos salvos</div>
+      <input class="search-input" id="searchSaved" placeholder="Buscar aluno..." oninput="renderSaved()">
+      <div id="savedList"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="print-area"></div>
+
+<script>
+const MUSCLES = {
+  'Peito': { color: '#e74c4c', exercises: ['Supino reto com barra','Supino inclinado com barra','Supino declinado com barra','Supino reto com halteres','Supino inclinado com halteres','Crucifixo reto','Crucifixo inclinado','Crossover polia alta','Crossover polia baixa','Peck deck','Flexão de braço','Mergulho no paralelo'] },
+  'Costas': { color: '#3498db', exercises: ['Puxada frontal','Puxada posterior','Remada curvada com barra','Remada unilateral com haltere','Remada cavalinho','Remada baixa (polia)','Pullover com haltere','Pullover na polia','Barra fixa','Levantamento terra','Hiperextensão lombar'] },
+  'Ombros': { color: '#9b59b6', exercises: ['Desenvolvimento com barra','Desenvolvimento com halteres','Desenvolvimento Arnold','Elevação lateral','Elevação frontal','Elevação posterior','Encolhimento com halteres','Encolhimento com barra','Remada alta','Face pull'] },
+  'Bíceps': { color: '#f39c12', exercises: ['Rosca direta com barra','Rosca alternada com haltere','Rosca concentrada','Rosca martelo','Rosca Scott','Rosca na polia','Rosca 21'] },
+  'Tríceps': { color: '#e67e22', exercises: ['Tríceps testa com barra','Tríceps corda na polia','Tríceps polia alta','Tríceps francês','Tríceps coice com haltere','Mergulho no banco','Supino fechado'] },
+  'Pernas': { color: '#27ae60', exercises: ['Agachamento livre','Agachamento hack','Leg press 45°','Leg press horizontal','Extensão de joelho','Flexão de joelho deitado','Flexão de joelho em pé','Stiff com halteres','Stiff com barra','Avanço','Agachamento búlgaro','Cadeira abdutora','Cadeira adutora','Panturrilha em pé','Panturrilha sentado','Agachamento sumô'] },
+  'Abdômen': { color: '#1abc9c', exercises: ['Abdominal supra','Abdominal infra','Abdominal oblíquo','Prancha','Crunch na polia','Elevação de pernas','Abdominal bicicleta','Roda abdominal'] },
+};
+
+let workout = [];
+let saved = JSON.parse(localStorage.getItem('gymSaved') || '[]');
+
+function renderExercises(filter = '') {
+  const list = document.getElementById('exerciseList');
+  list.innerHTML = '';
+  for (const [muscle, data] of Object.entries(MUSCLES)) {
+    const exs = filter ? data.exercises.filter(e => e.toLowerCase().includes(filter.toLowerCase())) : data.exercises;
+    if (!exs.length) continue;
+    list.innerHTML += `<div class="muscle-group">
+      <div class="muscle-label" style="color:${data.color}">${muscle}</div>
+      ${exs.map(e => `<button class="ex-btn" onclick="addExercise('${e.replace(/'/g,"\\'")}','${muscle}')">
+        <span class="dot" style="background:${data.color}"></span>${e}
+      </button>`).join('')}
+    </div>`;
+  }
+}
+
+function filterExercises() {
+  renderExercises(document.getElementById('searchEx').value);
+}
+
+function addExercise(name, muscle) {
+  workout.push({ name, muscle, series: 3, reps: 12, load: '', obs: '' });
+  renderWorkout();
+  updateButtons();
+  showToast(`${name} adicionado`);
+}
+
+function renderWorkout() {
+  const body = document.getElementById('workoutBody');
+  const empty = document.getElementById('emptyState');
+  if (!workout.length) { body.innerHTML = ''; body.appendChild(empty); return; }
+  
+  const color = m => MUSCLES[m]?.color || '#7a86a3';
+  body.innerHTML = workout.map((ex, i) => `
+    <div class="ex-card">
+      <div class="ex-card-header">
+        <div>
+          <div class="ex-card-name">${ex.name}</div>
+          <div class="ex-card-muscle" style="color:${color(ex.muscle)}">${ex.muscle}</div>
+        </div>
+        <button class="ex-card-remove" onclick="removeExercise(${i})">×</button>
+      </div>
+      <div class="ex-fields">
+        <div class="field-group">
+          <label>Séries</label>
+          <input type="number" value="${ex.series}" min="1" max="20" onchange="updateField(${i},'series',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Reps</label>
+          <input type="text" value="${ex.reps}" placeholder="12" onchange="updateField(${i},'reps',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Carga (kg)</label>
+          <input type="text" value="${ex.load}" placeholder="—" onchange="updateField(${i},'load',this.value)">
+        </div>
+      </div>
+      <div class="obs-field">
+        <label>Obs.</label>
+        <input type="text" value="${ex.obs}" placeholder="Observação opcional..." onchange="updateField(${i},'obs',this.value)">
+      </div>
+    </div>`).join('');
+}
+
+function removeExercise(i) { workout.splice(i, 1); renderWorkout(); updateButtons(); }
+function updateField(i, field, val) { workout[i][field] = val; }
+function clearWorkout() { workout = []; renderWorkout(); updateButtons(); }
+
+function updateButtons() {
+  const name = document.getElementById('studentName').value.trim();
+  const hasEx = workout.length > 0;
+  document.getElementById('btnSave').disabled = !(name && hasEx);
+  document.getElementById('btnPrint').disabled = !(name && hasEx);
+}
+
+function saveWorkout() {
+  const name = document.getElementById('studentName').value.trim();
+  const div = document.getElementById('trainDiv').value.trim();
+  if (!name || !workout.length) return;
+  const existing = saved.findIndex(s => s.name.toLowerCase() === name.toLowerCase() && s.div === div);
+  const entry = { name, div, exercises: JSON.parse(JSON.stringify(workout)), date: new Date().toLocaleDateString('pt-BR') };
+  if (existing >= 0) saved[existing] = entry; else saved.unshift(entry);
+  localStorage.setItem('gymSaved', JSON.stringify(saved));
+  renderSaved();
+  showToast('Treino salvo!');
+}
+
+function loadWorkout(i) {
+  const s = filtered()[i];
+  document.getElementById('studentName').value = s.name;
+  document.getElementById('trainDiv').value = s.div || '';
+  workout = JSON.parse(JSON.stringify(s.exercises));
+  renderWorkout();
+  updateButtons();
+  showToast(`Treino de ${s.name} carregado`);
+}
+
+function deleteSaved(i) {
+  const s = filtered()[i];
+  const idx = saved.findIndex(x => x === s);
+  saved.splice(idx, 1);
+  localStorage.setItem('gymSaved', JSON.stringify(saved));
+  renderSaved();
+}
+
+function filtered() {
+  const q = document.getElementById('searchSaved').value.toLowerCase();
+  return q ? saved.filter(s => s.name.toLowerCase().includes(q)) : saved;
+}
+
+function renderSaved() {
+  const list = document.getElementById('savedList');
+  const items = filtered();
+  if (!items.length) { list.innerHTML = `<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px 0">Nenhum treino salvo ainda</p>`; return; }
+  list.innerHTML = items.map((s, i) => `
+    <div class="saved-item" onclick="loadWorkout(${i})">
+      <div class="saved-item-info">
+        <div class="saved-item-name">${s.name}</div>
+        <div class="saved-item-meta">${s.div || 'Sem divisão'} · ${s.exercises.length} exerc. · ${s.date}</div>
+      </div>
+      <button class="saved-item-del" onclick="event.stopPropagation();deleteSaved(${i})">×</button>
+    </div>`).join('');
+}
+
+function printWorkout() {
+  const name = document.getElementById('studentName').value.trim();
+  const div = document.getElementById('trainDiv').value.trim();
+  const date = new Date().toLocaleDateString('pt-BR');
+  const W = 42; // chars 80mm ~42 colunas monospace
+  const line = '─'.repeat(W);
+  const center = t => { const p = Math.max(0, Math.floor((W - t.length) / 2)); return ' '.repeat(p) + t; };
+
+  let ticket = `<pre style="font-family:monospace;font-size:12px;line-height:1.5;white-space:pre;color:#000;background:#fff;padding:8px;">`;
+  ticket += center('★  TREINO  ★') + '\n';
+  ticket += line + '\n';
+  ticket += `Aluno : ${name}\n`;
+  if (div) ticket += `Treino: ${div}\n`;
+  ticket += `Data  : ${date}\n`;
+  ticket += line + '\n\n';
+
+  workout.forEach((ex, i) => {
+    ticket += `${i+1}. ${ex.name}\n`;
+    ticket += `   ${ex.series} séries x ${ex.reps} reps`;
+    if (ex.load) ticket += ` | ${ex.load} kg`;
+    ticket += '\n';
+    if (ex.obs) ticket += `   Obs: ${ex.obs}\n`;
+    ticket += '\n';
+  });
+
+  ticket += line + '\n';
+  ticket += center('Bom treino!') + '\n';
+  ticket += '</pre>';
+
+  document.getElementById('print-area').innerHTML = ticket;
+  window.print();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.display = 'none', 2000);
+}
+
+renderExercises();
+renderSaved();
+</script>
+</body>
+</html>
