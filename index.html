@@ -91,8 +91,9 @@
   .saved-item-info { flex: 1; min-width: 0; }
   .saved-item-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .saved-item-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-  .saved-item-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; padding: 0 4px; flex-shrink: 0; }
-  .saved-item-del:hover { color: var(--danger); }
+  .saved-item-del { min-height: 36px; padding: 8px 10px; border: 1px solid #8e3f4b; border-radius: 6px; background: #4a252b; color: #ffd7dc; cursor: pointer; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .saved-item-del:hover { border-color: #bf5666; background: #66303a; color: #fff; }
+  .saved-item-del:focus-visible { outline: 2px solid #ff9aa8; outline-offset: 2px; }
 
   .search-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; padding: 7px 10px; margin-bottom: 10px; }
   .search-input:focus { outline: none; border-color: var(--accent); }
@@ -144,7 +145,7 @@
     .workout-body, .student-body { flex: initial; overflow: visible; }
     .ex-btn { min-height: 44px; font-size: 14px; }
     .ex-card-remove { min-width: 40px; min-height: 40px; }
-    .saved-item-del { min-width: 40px; min-height: 40px; }
+    .saved-item-del { min-width: 64px; min-height: 40px; }
     .btn { min-height: 44px; }
     .field-group input, .obs-field input, .input-group input, .search-input,
     .manual-exercise input, .manual-exercise select { min-height: 42px; font-size: 16px; }
@@ -384,6 +385,7 @@ function loadWorkout(i) {
 
 function deleteSaved(i) {
   const s = filtered()[i];
+  if (!window.confirm(`Excluir o treino de "${s.name}"${s.div ? ` (${s.div})` : ''}? Esta ação não pode ser desfeita.`)) return;
   const idx = saved.findIndex(x => x === s);
   saved.splice(idx, 1);
   localStorage.setItem('gymSaved', JSON.stringify(saved));
@@ -405,7 +407,7 @@ function renderSaved() {
         <div class="saved-item-name">${escapeHtml(s.name)}</div>
         <div class="saved-item-meta">${escapeHtml(s.div || 'Sem divisão')} · ${s.exercises.length} exerc. · ${escapeHtml(s.date)}</div>
       </div>
-      <button class="saved-item-del" onclick="event.stopPropagation();deleteSaved(${i})">×</button>
+      <button type="button" class="saved-item-del" aria-label="Excluir treino de ${escapeHtml(s.name)}" onclick="event.stopPropagation();deleteSaved(${i})">Excluir</button>
     </div>`).join('');
 }
 
