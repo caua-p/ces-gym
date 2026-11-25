@@ -104,13 +104,56 @@
   .manual-exercise input:focus, .manual-exercise select:focus { outline: none; border-color: var(--accent); }
   .manual-exercise .btn { padding: 8px; }
 
+  .mobile-nav { display: none; }
+
   /* TOAST */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a3a1a; color: var(--success); border: 1px solid #2a5a2a; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; z-index: 1000; display: none; }
+
+  @media (max-width: 800px) {
+    .mobile-nav {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      padding: 6px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .mobile-nav button {
+      min-width: 0;
+      min-height: 42px;
+      padding: 8px 4px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .mobile-nav button[aria-current="page"] { background: var(--accent-dim); color: var(--text); }
+    .app { display: block; height: auto; min-height: calc(100vh - 54px); overflow: visible; }
+    .app > .panel { display: none; min-height: calc(100vh - 54px); overflow: visible; border-right: 0; }
+    .app > .panel.mobile-active { display: block; }
+    .app > .workout-panel.mobile-active, .app > .student-panel.mobile-active { display: flex; }
+    .panel:last-child { border-left: 0; }
+    .panel-header { top: 54px; }
+    .muscle-label { top: 102px; }
+    .workout-body, .student-body { flex: initial; overflow: visible; }
+    .ex-btn { min-height: 44px; font-size: 14px; }
+    .ex-card-remove { min-width: 40px; min-height: 40px; }
+    .saved-item-del { min-width: 40px; min-height: 40px; }
+    .btn { min-height: 44px; }
+    .field-group input, .obs-field input, .input-group input, .search-input,
+    .manual-exercise input, .manual-exercise select { min-height: 42px; font-size: 16px; }
+  }
 
   /* PRINT */
   @media print {
     body { background: #fff; color: #000; font-family: monospace; }
-    .app { display: none; }
+    .app, .mobile-nav { display: none !important; }
     #print-area { display: block !important; }
   }
   #print-area { display: none; }
@@ -118,10 +161,16 @@
 </head>
 <body>
 
+<nav class="mobile-nav" aria-label="Navegação do aplicativo">
+  <button type="button" aria-current="page" onclick="showMobilePanel('exercisePanel', this)">Exercícios</button>
+  <button type="button" onclick="showMobilePanel('workoutPanel', this)">Treino</button>
+  <button type="button" onclick="showMobilePanel('studentPanel', this)">Aluno</button>
+</nav>
+
 <div class="app">
 
   <!-- COLUNA 1: EXERCÍCIOS -->
-  <div class="panel" style="background: var(--surface);">
+  <div class="panel mobile-active" id="exercisePanel" style="background: var(--surface);">
     <div class="panel-header">
       <h2>Exercícios</h2>
       <input class="search-input" id="searchEx" placeholder="Buscar exercício..." style="margin-top: 10px; margin-bottom: 0;" oninput="filterExercises()">
@@ -145,20 +194,20 @@
   </div>
 
   <!-- COLUNA 2: TREINO ATUAL -->
-  <div class="workout-panel panel" style="border-right: none;">
+  <div class="workout-panel panel" id="workoutPanel" style="border-right: none;">
     <div class="panel-header" style="background: var(--surface);">
       <h2>Treino atual</h2>
     </div>
     <div class="workout-body" id="workoutBody">
       <div class="empty-state" id="emptyState">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 6.5h11M6.5 12h11M6.5 17.5h7"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
-        <p>Clique nos exercícios ao lado para montar o treino</p>
+        <p>Abra a aba Exercícios para montar o treino</p>
       </div>
     </div>
   </div>
 
   <!-- COLUNA 3: ALUNO + SALVAR -->
-  <div class="student-panel panel">
+  <div class="student-panel panel" id="studentPanel">
     <div class="panel-header" style="background: var(--surface);">
       <h2>Aluno &amp; Impressão</h2>
     </div>
@@ -202,6 +251,16 @@ const MUSCLES = {
 
 let workout = [];
 let saved = JSON.parse(localStorage.getItem('gymSaved') || '[]');
+
+function showMobilePanel(panelId, button) {
+  document.querySelectorAll('.app > .panel').forEach(panel => {
+    panel.classList.toggle('mobile-active', panel.id === panelId);
+  });
+  document.querySelectorAll('.mobile-nav button').forEach(tab => {
+    if (tab === button) tab.setAttribute('aria-current', 'page');
+    else tab.removeAttribute('aria-current');
+  });
+}
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({
