@@ -33,11 +33,9 @@
   /* EXERCÍCIOS */
   .muscle-group { margin-bottom: 4px; }
   .muscle-label { padding: 8px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); background: var(--bg); position: sticky; top: 49px; z-index: 5; }
-  .ex-btn { display: flex; align-items: center; width: calc(100% - 16px); min-height: 48px; margin: 4px 8px; padding: 14px 16px; background: #1e2433; border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-size: 13px; cursor: pointer; text-align: left; transition: background .15s, border-color .15s; gap: 8px; }
-  .ex-btn:hover, .ex-btn:focus-visible { background: var(--surface2); border-color: var(--accent); }
+  .ex-btn { display: flex; align-items: center; width: 100%; padding: 9px 16px; background: none; border: none; color: var(--text); font-size: 13px; cursor: pointer; text-align: left; transition: background .15s; gap: 8px; }
+  .ex-btn:hover { background: var(--surface2); }
   .ex-btn .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .ex-btn-label { flex: 1; }
-  .ex-btn-add { color: var(--text-muted); font-size: 20px; font-weight: 400; line-height: 1; }
 
   /* TREINO ATUAL */
   .workout-panel { background: var(--surface); display: flex; flex-direction: column; }
@@ -77,12 +75,12 @@
   .btn { width: 100%; padding: 10px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: #3a7be8; }
-  .btn-primary:disabled { background: #3a4659; border: 1px solid #71809a; color: #fff; opacity: 1; cursor: not-allowed; }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
   .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); margin-top: 6px; }
   .btn-secondary:hover { background: var(--border); }
   .btn-print { background: #1a3a1a; color: var(--success); border: 1px solid #2a5a2a; margin-top: 6px; }
   .btn-print:hover { background: #2a5a2a; }
-  .btn-print:disabled { background: #3a4659; border: 1px solid #71809a; color: #fff; opacity: 1; cursor: not-allowed; }
+  .btn-print:disabled { opacity: .4; cursor: not-allowed; }
 
   .divider { height: 1px; background: var(--border); margin: 16px 0; }
   .section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
@@ -100,20 +98,13 @@
   .search-input:focus { outline: none; border-color: var(--accent); }
   .search-input::placeholder { color: var(--text-muted); }
 
-  .manual-exercise { border-bottom: 1px solid var(--border); }
-  .manual-exercise summary { padding: 12px 16px; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; list-style: none; }
-  .manual-exercise summary::-webkit-details-marker { display: none; }
-  .manual-exercise summary::before { content: '+'; display: inline-block; width: 18px; font-size: 16px; }
-  .manual-exercise[open] summary::before { content: '−'; }
-  .manual-exercise summary:hover { color: var(--text); }
-  .manual-exercise-form { padding: 0 16px 12px; }
-  .manual-exercise-form label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
-  .manual-exercise-form input, .manual-exercise-form select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; padding: 7px 10px; margin-bottom: 6px; }
-  .manual-exercise-form input:focus, .manual-exercise-form select:focus { outline: none; border-color: var(--accent); }
-  .manual-exercise-form .btn { padding: 8px; }
+  .manual-exercise { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .manual-exercise label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .manual-exercise input, .manual-exercise select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; padding: 7px 10px; margin-bottom: 6px; }
+  .manual-exercise input:focus, .manual-exercise select:focus { outline: none; border-color: var(--accent); }
+  .manual-exercise .btn { padding: 8px; }
 
   .mobile-nav { display: none; }
-  .nav-count { display: inline-flex; min-width: 20px; height: 20px; align-items: center; justify-content: center; margin-left: 3px; padding: 0 6px; border-radius: 10px; background: var(--surface2); color: var(--text); font-size: 11px; }
 
   /* TOAST */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a3a1a; color: var(--success); border: 1px solid #2a5a2a; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; z-index: 1000; display: none; }
@@ -156,41 +147,24 @@
     .saved-item-del { min-width: 40px; min-height: 40px; }
     .btn { min-height: 44px; }
     .field-group input, .obs-field input, .input-group input, .search-input,
-    .manual-exercise-form input, .manual-exercise-form select { min-height: 42px; font-size: 16px; }
-  }
-
-  @media (max-width: 768px) {
-    .mobile-nav {
-      position: fixed;
-      top: auto;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      padding-bottom: calc(6px + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--border);
-      border-bottom: 0;
-    }
-    .app { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
-    .toast { bottom: calc(68px + env(safe-area-inset-bottom)); }
+    .manual-exercise input, .manual-exercise select { min-height: 42px; font-size: 16px; }
   }
 
   /* PRINT */
   @media print {
-    body { margin: 0; background: #fff; color: #000; font-family: monospace; }
-    .app, .mobile-nav, .toast { display: none !important; }
-    #print-area { display: block !important; width: 80mm; margin: 0; }
-    #print-area pre { box-sizing: border-box; width: 80mm; margin: 0; padding: 2mm; color: #000; background: #fff; font: 10px/1.35 monospace; white-space: pre; }
+    body { background: #fff; color: #000; font-family: monospace; }
+    .app, .mobile-nav { display: none !important; }
+    #print-area { display: block !important; }
   }
   #print-area { display: none; }
 </style>
-<style id="printPageStyle"></style>
 </head>
 <body>
 
 <nav class="mobile-nav" aria-label="Navegação do aplicativo">
-  <button type="button" data-panel="exercisePanel" aria-current="page" onclick="showMobilePanel('exercisePanel', this)">Exercícios</button>
-  <button type="button" data-panel="workoutPanel" onclick="showMobilePanel('workoutPanel', this)">Treino <span id="workoutCount" class="nav-count" aria-live="polite">0</span></button>
-  <button type="button" data-panel="studentPanel" onclick="showMobilePanel('studentPanel', this)">Aluno</button>
+  <button type="button" aria-current="page" onclick="showMobilePanel('exercisePanel', this)">Exercícios</button>
+  <button type="button" onclick="showMobilePanel('workoutPanel', this)">Treino</button>
+  <button type="button" onclick="showMobilePanel('studentPanel', this)">Aluno</button>
 </nav>
 
 <div class="app">
@@ -201,24 +175,21 @@
       <h2>Exercícios</h2>
       <input class="search-input" id="searchEx" placeholder="Buscar exercício..." style="margin-top: 10px; margin-bottom: 0;" oninput="filterExercises()">
     </div>
-    <details class="manual-exercise">
-      <summary>Novo exercício manual</summary>
-      <form class="manual-exercise-form" onsubmit="event.preventDefault(); addManualExercise()">
-        <label for="manualExerciseName">Nome do exercício</label>
-        <input id="manualExerciseName" type="text" maxlength="80" placeholder="Ex: Abdução na polia" required>
-        <select id="manualExerciseMuscle" aria-label="Grupo muscular">
-          <option value="Outro">Outro grupo</option>
-          <option value="Peito">Peito</option>
-          <option value="Costas">Costas</option>
-          <option value="Ombros">Ombros</option>
-          <option value="Bíceps">Bíceps</option>
-          <option value="Tríceps">Tríceps</option>
-          <option value="Pernas">Pernas</option>
-          <option value="Abdômen">Abdômen</option>
-        </select>
-        <button class="btn btn-primary" type="submit">Adicionar ao treino</button>
-      </form>
-    </details>
+    <form class="manual-exercise" onsubmit="event.preventDefault(); addManualExercise()">
+      <label for="manualExerciseName">Adicionar exercício manualmente</label>
+      <input id="manualExerciseName" type="text" maxlength="80" placeholder="Nome do exercício" required>
+      <select id="manualExerciseMuscle" aria-label="Grupo muscular">
+        <option value="Outro">Outro grupo</option>
+        <option value="Peito">Peito</option>
+        <option value="Costas">Costas</option>
+        <option value="Ombros">Ombros</option>
+        <option value="Bíceps">Bíceps</option>
+        <option value="Tríceps">Tríceps</option>
+        <option value="Pernas">Pernas</option>
+        <option value="Abdômen">Abdômen</option>
+      </select>
+      <button class="btn btn-primary" type="submit">Adicionar ao treino</button>
+    </form>
     <div id="exerciseList"></div>
   </div>
 
@@ -230,8 +201,7 @@
     <div class="workout-body" id="workoutBody">
       <div class="empty-state" id="emptyState">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 6.5h11M6.5 12h11M6.5 17.5h7"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
-        <p>Nenhum exercício no treino ainda</p>
-        <button class="btn btn-primary" type="button" onclick="showMobilePanel('exercisePanel')">Escolher exercícios</button>
+        <p>Abra a aba Exercícios para montar o treino</p>
       </div>
     </div>
   </div>
@@ -286,10 +256,8 @@ function showMobilePanel(panelId, button) {
   document.querySelectorAll('.app > .panel').forEach(panel => {
     panel.classList.toggle('mobile-active', panel.id === panelId);
   });
-  const activeButton = button || Array.from(document.querySelectorAll('.mobile-nav button'))
-    .find(tab => tab.dataset.panel === panelId);
   document.querySelectorAll('.mobile-nav button').forEach(tab => {
-    if (tab === activeButton) tab.setAttribute('aria-current', 'page');
+    if (tab === button) tab.setAttribute('aria-current', 'page');
     else tab.removeAttribute('aria-current');
   });
 }
@@ -313,7 +281,7 @@ function renderExercises(filter = '') {
     list.innerHTML += `<div class="muscle-group">
       <div class="muscle-label" style="color:${data.color}">${muscle}</div>
       ${exs.map(e => `<button class="ex-btn" onclick="addExercise('${e.replace(/'/g,"\\'")}','${muscle}')">
-        <span class="dot" style="background:${data.color}"></span><span class="ex-btn-label">${e}</span><span class="ex-btn-add" aria-hidden="true">+</span>
+        <span class="dot" style="background:${data.color}"></span>${e}
       </button>`).join('')}
     </div>`;
   }
@@ -346,7 +314,6 @@ function addManualExercise() {
 function renderWorkout() {
   const body = document.getElementById('workoutBody');
   const empty = document.getElementById('emptyState');
-  document.getElementById('workoutCount').textContent = workout.length;
   if (!workout.length) { body.innerHTML = ''; body.appendChild(empty); return; }
   
   const color = m => MUSCLES[m]?.color || '#7a86a3';
@@ -444,37 +411,30 @@ function printWorkout() {
   const name = document.getElementById('studentName').value.trim();
   const div = document.getElementById('trainDiv').value.trim();
   const date = new Date().toLocaleDateString('pt-BR');
-  const W = 42;
+  const W = 42; // chars 80mm ~42 colunas monospace
   const line = '─'.repeat(W);
   const center = t => { const p = Math.max(0, Math.floor((W - t.length) / 2)); return ' '.repeat(p) + t; };
 
-  const lines = [
-    center('★  TREINO  ★'),
-    line,
-    `Aluno : ${name}`,
-    ...(div ? [`Treino: ${div}`] : []),
-    `Data  : ${date}`,
-    line,
-    '',
-  ];
+  let ticket = `<pre style="font-family:monospace;font-size:12px;line-height:1.5;white-space:pre;color:#000;background:#fff;padding:8px;">`;
+  ticket += center('★  TREINO  ★') + '\n';
+  ticket += line + '\n';
+  ticket += `Aluno : ${escapeHtml(name)}\n`;
+  if (div) ticket += `Treino: ${escapeHtml(div)}\n`;
+  ticket += `Data  : ${date}\n`;
+  ticket += line + '\n\n';
 
   workout.forEach((ex, i) => {
-    lines.push(`${i + 1}. ${ex.name}`, `   ${ex.series} séries x ${ex.reps} reps${ex.load ? ` | ${ex.load} kg` : ''}`);
-    if (ex.obs) lines.push(`   Obs: ${ex.obs}`);
-    lines.push('');
+    ticket += `${i+1}. ${escapeHtml(ex.name)}\n`;
+    ticket += `   ${escapeHtml(ex.series)} séries x ${escapeHtml(ex.reps)} reps`;
+    if (ex.load) ticket += ` | ${escapeHtml(ex.load)} kg`;
+    ticket += '\n';
+    if (ex.obs) ticket += `   Obs: ${escapeHtml(ex.obs)}\n`;
+    ticket += '\n';
   });
 
-  lines.push(line, center('Bom treino!'));
-  const ticketLines = lines.flatMap(text => {
-    const characters = Array.from(text);
-    if (!characters.length) return [''];
-    const wrapped = [];
-    for (let i = 0; i < characters.length; i += W) wrapped.push(characters.slice(i, i + W).join(''));
-    return wrapped;
-  });
-  const pageHeight = Math.ceil(ticketLines.length * 10 * 1.35 * 25.4 / 96 + 4);
-  document.getElementById('printPageStyle').textContent = `@page { size: 80mm ${pageHeight}mm; margin: 0; }`;
-  const ticket = `<pre>${ticketLines.map(escapeHtml).join('\n')}</pre>`;
+  ticket += line + '\n';
+  ticket += center('Bom treino!') + '\n';
+  ticket += '</pre>';
 
   document.getElementById('print-area').innerHTML = ticket;
   window.print();
