@@ -98,6 +98,12 @@
   .search-input:focus { outline: none; border-color: var(--accent); }
   .search-input::placeholder { color: var(--text-muted); }
 
+  .manual-exercise { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .manual-exercise label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .manual-exercise input, .manual-exercise select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; padding: 7px 10px; margin-bottom: 6px; }
+  .manual-exercise input:focus, .manual-exercise select:focus { outline: none; border-color: var(--accent); }
+  .manual-exercise .btn { padding: 8px; }
+
   /* TOAST */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a3a1a; color: var(--success); border: 1px solid #2a5a2a; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; z-index: 1000; display: none; }
 
@@ -120,6 +126,21 @@
       <h2>Exercícios</h2>
       <input class="search-input" id="searchEx" placeholder="Buscar exercício..." style="margin-top: 10px; margin-bottom: 0;" oninput="filterExercises()">
     </div>
+    <form class="manual-exercise" onsubmit="event.preventDefault(); addManualExercise()">
+      <label for="manualExerciseName">Adicionar exercício manualmente</label>
+      <input id="manualExerciseName" type="text" maxlength="80" placeholder="Nome do exercício" required>
+      <select id="manualExerciseMuscle" aria-label="Grupo muscular">
+        <option value="Outro">Outro grupo</option>
+        <option value="Peito">Peito</option>
+        <option value="Costas">Costas</option>
+        <option value="Ombros">Ombros</option>
+        <option value="Bíceps">Bíceps</option>
+        <option value="Tríceps">Tríceps</option>
+        <option value="Pernas">Pernas</option>
+        <option value="Abdômen">Abdômen</option>
+      </select>
+      <button class="btn btn-primary" type="submit">Adicionar ao treino</button>
+    </form>
     <div id="exerciseList"></div>
   </div>
 
@@ -182,6 +203,16 @@ const MUSCLES = {
 let workout = [];
 let saved = JSON.parse(localStorage.getItem('gymSaved') || '[]');
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[char]);
+}
+
 function renderExercises(filter = '') {
   const list = document.getElementById('exerciseList');
   list.innerHTML = '';
@@ -208,6 +239,19 @@ function addExercise(name, muscle) {
   showToast(`${name} adicionado`);
 }
 
+function addManualExercise() {
+  const input = document.getElementById('manualExerciseName');
+  const name = input.value.trim();
+  if (!name) {
+    showToast('Digite o nome do exercício');
+    input.focus();
+    return;
+  }
+  addExercise(name, document.getElementById('manualExerciseMuscle').value);
+  input.value = '';
+  input.focus();
+}
+
 function renderWorkout() {
   const body = document.getElementById('workoutBody');
   const empty = document.getElementById('emptyState');
@@ -218,28 +262,28 @@ function renderWorkout() {
     <div class="ex-card">
       <div class="ex-card-header">
         <div>
-          <div class="ex-card-name">${ex.name}</div>
-          <div class="ex-card-muscle" style="color:${color(ex.muscle)}">${ex.muscle}</div>
+          <div class="ex-card-name">${escapeHtml(ex.name)}</div>
+          <div class="ex-card-muscle" style="color:${color(ex.muscle)}">${escapeHtml(ex.muscle)}</div>
         </div>
         <button class="ex-card-remove" onclick="removeExercise(${i})">×</button>
       </div>
       <div class="ex-fields">
         <div class="field-group">
           <label>Séries</label>
-          <input type="number" value="${ex.series}" min="1" max="20" onchange="updateField(${i},'series',this.value)">
+          <input type="number" value="${escapeHtml(ex.series)}" min="1" max="20" onchange="updateField(${i},'series',this.value)">
         </div>
         <div class="field-group">
           <label>Reps</label>
-          <input type="text" value="${ex.reps}" placeholder="12" onchange="updateField(${i},'reps',this.value)">
+          <input type="text" value="${escapeHtml(ex.reps)}" placeholder="12" onchange="updateField(${i},'reps',this.value)">
         </div>
         <div class="field-group">
           <label>Carga (kg)</label>
-          <input type="text" value="${ex.load}" placeholder="—" onchange="updateField(${i},'load',this.value)">
+          <input type="text" value="${escapeHtml(ex.load)}" placeholder="—" onchange="updateField(${i},'load',this.value)">
         </div>
       </div>
       <div class="obs-field">
         <label>Obs.</label>
-        <input type="text" value="${ex.obs}" placeholder="Observação opcional..." onchange="updateField(${i},'obs',this.value)">
+        <input type="text" value="${escapeHtml(ex.obs)}" placeholder="Observação opcional..." onchange="updateField(${i},'obs',this.value)">
       </div>
     </div>`).join('');
 }
@@ -297,8 +341,8 @@ function renderSaved() {
   list.innerHTML = items.map((s, i) => `
     <div class="saved-item" onclick="loadWorkout(${i})">
       <div class="saved-item-info">
-        <div class="saved-item-name">${s.name}</div>
-        <div class="saved-item-meta">${s.div || 'Sem divisão'} · ${s.exercises.length} exerc. · ${s.date}</div>
+        <div class="saved-item-name">${escapeHtml(s.name)}</div>
+        <div class="saved-item-meta">${escapeHtml(s.div || 'Sem divisão')} · ${s.exercises.length} exerc. · ${escapeHtml(s.date)}</div>
       </div>
       <button class="saved-item-del" onclick="event.stopPropagation();deleteSaved(${i})">×</button>
     </div>`).join('');
@@ -315,17 +359,17 @@ function printWorkout() {
   let ticket = `<pre style="font-family:monospace;font-size:12px;line-height:1.5;white-space:pre;color:#000;background:#fff;padding:8px;">`;
   ticket += center('★  TREINO  ★') + '\n';
   ticket += line + '\n';
-  ticket += `Aluno : ${name}\n`;
-  if (div) ticket += `Treino: ${div}\n`;
+  ticket += `Aluno : ${escapeHtml(name)}\n`;
+  if (div) ticket += `Treino: ${escapeHtml(div)}\n`;
   ticket += `Data  : ${date}\n`;
   ticket += line + '\n\n';
 
   workout.forEach((ex, i) => {
-    ticket += `${i+1}. ${ex.name}\n`;
-    ticket += `   ${ex.series} séries x ${ex.reps} reps`;
-    if (ex.load) ticket += ` | ${ex.load} kg`;
+    ticket += `${i+1}. ${escapeHtml(ex.name)}\n`;
+    ticket += `   ${escapeHtml(ex.series)} séries x ${escapeHtml(ex.reps)} reps`;
+    if (ex.load) ticket += ` | ${escapeHtml(ex.load)} kg`;
     ticket += '\n';
-    if (ex.obs) ticket += `   Obs: ${ex.obs}\n`;
+    if (ex.obs) ticket += `   Obs: ${escapeHtml(ex.obs)}\n`;
     ticket += '\n';
   });
 
