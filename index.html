@@ -152,12 +152,14 @@
 
   /* PRINT */
   @media print {
-    body { background: #fff; color: #000; font-family: monospace; }
-    .app, .mobile-nav { display: none !important; }
-    #print-area { display: block !important; }
+    body { margin: 0; background: #fff; color: #000; font-family: monospace; }
+    .app, .mobile-nav, .toast { display: none !important; }
+    #print-area { display: block !important; width: 80mm; margin: 0; }
+    #print-area pre { box-sizing: border-box; width: 80mm; margin: 0; padding: 2mm; color: #000; background: #fff; font: 10px/1.35 monospace; white-space: pre; }
   }
   #print-area { display: none; }
 </style>
+<style id="printPageStyle"></style>
 </head>
 <body>
 
@@ -411,30 +413,37 @@ function printWorkout() {
   const name = document.getElementById('studentName').value.trim();
   const div = document.getElementById('trainDiv').value.trim();
   const date = new Date().toLocaleDateString('pt-BR');
-  const W = 42; // chars 80mm ~42 colunas monospace
+  const W = 42;
   const line = '─'.repeat(W);
   const center = t => { const p = Math.max(0, Math.floor((W - t.length) / 2)); return ' '.repeat(p) + t; };
 
-  let ticket = `<pre style="font-family:monospace;font-size:12px;line-height:1.5;white-space:pre;color:#000;background:#fff;padding:8px;">`;
-  ticket += center('★  TREINO  ★') + '\n';
-  ticket += line + '\n';
-  ticket += `Aluno : ${escapeHtml(name)}\n`;
-  if (div) ticket += `Treino: ${escapeHtml(div)}\n`;
-  ticket += `Data  : ${date}\n`;
-  ticket += line + '\n\n';
+  const lines = [
+    center('★  TREINO  ★'),
+    line,
+    `Aluno : ${name}`,
+    ...(div ? [`Treino: ${div}`] : []),
+    `Data  : ${date}`,
+    line,
+    '',
+  ];
 
   workout.forEach((ex, i) => {
-    ticket += `${i+1}. ${escapeHtml(ex.name)}\n`;
-    ticket += `   ${escapeHtml(ex.series)} séries x ${escapeHtml(ex.reps)} reps`;
-    if (ex.load) ticket += ` | ${escapeHtml(ex.load)} kg`;
-    ticket += '\n';
-    if (ex.obs) ticket += `   Obs: ${escapeHtml(ex.obs)}\n`;
-    ticket += '\n';
+    lines.push(`${i + 1}. ${ex.name}`, `   ${ex.series} séries x ${ex.reps} reps${ex.load ? ` | ${ex.load} kg` : ''}`);
+    if (ex.obs) lines.push(`   Obs: ${ex.obs}`);
+    lines.push('');
   });
 
-  ticket += line + '\n';
-  ticket += center('Bom treino!') + '\n';
-  ticket += '</pre>';
+  lines.push(line, center('Bom treino!'));
+  const ticketLines = lines.flatMap(text => {
+    const characters = Array.from(text);
+    if (!characters.length) return [''];
+    const wrapped = [];
+    for (let i = 0; i < characters.length; i += W) wrapped.push(characters.slice(i, i + W).join(''));
+    return wrapped;
+  });
+  const pageHeight = Math.ceil(ticketLines.length * 10 * 1.35 * 25.4 / 96 + 4);
+  document.getElementById('printPageStyle').textContent = `@page { size: 80mm ${pageHeight}mm; margin: 0; }`;
+  const ticket = `<pre>${ticketLines.map(escapeHtml).join('\n')}</pre>`;
 
   document.getElementById('print-area').innerHTML = ticket;
   window.print();
